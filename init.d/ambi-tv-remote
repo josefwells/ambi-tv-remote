@@ -28,11 +28,14 @@ start_app (){
     if [ -f $PID_FILE ]
     then
         echo "$PID_FILE exists, process is already running or crashed"
-    else
-        echo "Starting node app..."
-        PORT=$PORT NODE_PATH=$NODE_PATH $NODE_EXEC $APP_DIR/$NODE_APP  1>$LOG_FILE 2>&1 &
-        echo $! > $PID_FILE;
+	kill `cat $PID_FILE`
+	rm $PID_FILE
     fi
+    echo "Starting node app..."
+    PORT=$PORT NODE_PATH=$NODE_PATH $NODE_EXEC $APP_DIR/$NODE_APP  1>$LOG_FILE 2>&1 &
+    echo $! > $PID_FILE;
+    wget -q -4 --post-data='' --retry-connrefused http://localhost:5000/remote/launch -O /dev/null
+    echo Done
 }
 
 stop_app (){
